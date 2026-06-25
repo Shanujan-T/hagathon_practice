@@ -22,7 +22,7 @@ pip install -r requirements.txt
 cp .env.example .env   # then fill in your credentials
 
 # 4. Create the database in MySQL
-mysql -u root -p -e "CREATE DATABASE student_db;"
+mysql -u root -p -e "CREATE DATABASE hagathon_db;"
 
 # 5. Run the app (tables are created automatically on first start)
 python run.py
