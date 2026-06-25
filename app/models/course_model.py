@@ -9,6 +9,7 @@ class Course(db.Model):
   description = db.Column(db.Text, nullable=True)
   is_available = db.Column(db.Boolean, default=True)
   created_at = db.Column(db.DateTime, default=utc_now)
+  
   def to_dict(self):
     return {
       "id": self.id,
