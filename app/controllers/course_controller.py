@@ -41,3 +41,80 @@ def _validate_course_payload(data, course_id=None):
                 errors.append("duration_months must be a positive integer.")
 
         return errors
+    
+def create_course():
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "Request body is required."}), 400
+
+    errors = _validate_course_payload(data)
+    if errors:
+        return jsonify({"errors": errors}), 400
+
+    try:
+        course = Course(
+            course_title=data.get("course_title").strip(),
+            course_fee=float(data.get("course_fee")),
+            duration_months=int(data.get("duration_months")),
+            description=data.get("description"),
+            is_available=data.get("is_available", True),
+        )
+        db.session.add(course)
+        db.session.commit()
+        return jsonify({"message": "Course created successfully.", "course": course.to_dict()}), 201
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "An internal server error occurred."}), 500
+
+
+def get_courses():
+    courses = Course.query.all()
+    return jsonify({"courses": [c.to_dict() for c in courses]}), 200
+
+
+def get_course(course_id):
+    course = Course.query.get(course_id)
+    if not course:
+        return jsonify({"error": "Course not found."}), 404
+    return jsonify({"course": course.to_dict()}), 200
+
+
+def update_course(course_id):
+    course = Course.query.get(course_id)
+    if not course:
+        return jsonify({"error": "Course not found."}), 404
+
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "No data provided to update."}), 400
+
+    errors = _validate_course_payload(data, course_id=course_id)
+    if errors:
+        return jsonify({"errors": errors}), 400
+
+    try:
+        course.course_title = data.get("course_title").strip()
+        course.course_fee = float(data.get("course_fee"))
+        course.duration_months = int(data.get("duration_months"))
+        if "description" in data:
+            course.description = data.get("description")
+        if "is_available" in data:
+            course.is_available = bool(data.get("is_available"))
+        db.session.commit()
+        return jsonify({"message": "Course updated successfully.", "course": course.to_dict()}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "An internal server error occurred."}), 500
+
+
+def delete_course(course_id):
+    course = Course.query.get(course_id)
+    if not course:
+        return jsonify({"error": "Course not found."}), 404
+    try:
+        db.session.delete(course)
+        db.session.commit()
+        return jsonify({"message": "Course deleted successfully."}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "An internal server error occurred."}), 500
