@@ -18,6 +18,12 @@ def get_students():
 def get_student(student_id):
     return ctrl.get_student(student_id)
 
+
 @student_bp.route("/<int:student_id>", methods=["PUT"])
 def update_student(student_id):
     return ctrl.update_student(student_id)
+
+
+@student_bp.route("/<int:student_id>", methods=["DELETE"])
+def delete_student(student_id):
+    return ctrl.delete_student(student_id)

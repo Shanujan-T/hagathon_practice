@@ -38,6 +38,7 @@ def _validate_student_payload(data, student_id=None):
 
     return errors
 
+
 def create_student():
     data = request.get_json(silent=True)
     if not data:
@@ -67,9 +68,11 @@ def create_student():
         db.session.rollback()
         return jsonify({"error": "An internal server error occurred."}), 500
     
+
 def get_students():
     students = Student.query.all()
     return jsonify({"students": [s.to_dict() for s in students]}), 200
+
 
 def get_student(student_id):
     student = Student.query.get(student_id)
@@ -106,6 +109,19 @@ def update_student(student_id):
         student.joined_date = joined_date
         db.session.commit()
         return jsonify({"message": "Student updated successfully.", "student": student.to_dict()}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "An internal server error occurred."}), 500
+    
+
+def delete_student(student_id):
+    student = Student.query.get(student_id)
+    if not student:
+        return jsonify({"error": "Student not found."}), 404
+    try:
+        db.session.delete(student)
+        db.session.commit()
+        return jsonify({"message": "Student deleted successfully."}), 200
     except Exception:
         db.session.rollback()
         return jsonify({"error": "An internal server error occurred."}), 500
