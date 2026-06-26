@@ -37,3 +37,32 @@ def _validate_student_payload(data, student_id=None):
         errors.append("joined_date is required.")
 
     return errors
+
+def create_student():
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "Request body is required."}), 400
+
+    errors = _validate_student_payload(data)
+    if errors:
+        return jsonify({"errors": errors}), 400
+
+    joined_date, date_err = _parse_joined_date(data.get("joined_date"))
+    if date_err:
+        return jsonify({"error": date_err}), 400
+
+    try:
+        student = Student(
+            full_name=data.get("full_name").strip(),
+            email=data.get("email").strip(),
+            age=int(data.get("age")),
+            cgpa=float(data.get("cgpa", 0.0)),
+            is_active=data.get("is_active", True),
+            joined_date=joined_date,
+        )
+        db.session.add(student)
+        db.session.commit()
+        return jsonify({"message": "Student created successfully.", "student": student.to_dict()}), 201
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "An internal server error occurred."}), 500
