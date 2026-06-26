@@ -66,3 +66,7 @@ def create_student():
     except Exception:
         db.session.rollback()
         return jsonify({"error": "An internal server error occurred."}), 500
+    
+def get_students():
+    students = Student.query.all()
+    return jsonify({"students": [s.to_dict() for s in students]}), 200
