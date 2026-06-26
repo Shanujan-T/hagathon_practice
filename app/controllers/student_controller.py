@@ -70,3 +70,12 @@ def create_student():
 def get_students():
     students = Student.query.all()
     return jsonify({"students": [s.to_dict() for s in students]}), 200
+
+def get_student(student_id):
+    student = Student.query.get(student_id)
+    if not student:
+        return jsonify({"error": "Student not found."}), 404
+    return jsonify({"student": student.to_dict()}), 200
+
+
+

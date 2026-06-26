@@ -12,3 +12,9 @@ def create_student():
 @student_bp.route("", methods=["GET"])
 def get_students():
     return ctrl.get_students()
+
+
+@student_bp.route("/<int:student_id>", methods=["GET"])
+def get_student(student_id):
+    return ctrl.get_student(student_id)
+
